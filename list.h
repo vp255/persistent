@@ -1,3 +1,7 @@
+#ifndef PERSISTENT_LIST_H
+#define PERSISTENT_LIST_H
+
+#include <iostream>
 #include <memory>
 
 namespace Persistent {
@@ -14,39 +18,32 @@ class List {
     std::shared_ptr<Data> rest_;
   };
 
-  std::shared_ptr<Data> data_;
-  List(std::shared_ptr<Data> data) : data_(data) {}
+  explicit List(std::shared_ptr<Data> data) : data_(data) {}
 
   static List EmptyList;
 
 public:
 
-  List();
+  List() = default;
+  List(const List&) = default;
+  ~List() = default;
+  List(List&&) = default;
+  List& operator=(List&&) = default;
+
   List(T val, const List & tail);
 
-  bool isEmpty() {
+  bool isEmpty() const {
     return !data_.get();
   }
 
-  const T& head();
-  List<T> tail();
+  const T& head() const;
+  List<T> tail() const;
+
+private:
+
+  std::shared_ptr<Data> data_;
 
 };
-
-
-//template<class T> 
-//List<T>::List() : data_(nullptr) {}
-
-template<class T>  // not thread safe?
-List<T>::List() {
-  static List<T>* EmptyList;
-
-  if (!EmptyList)
-    EmptyList = new List<T>(nullptr);
-
-  *this = *EmptyList;
-
-}
 
 template<class T>
 List<T>::List(T val, const List& tail) 
@@ -55,29 +52,27 @@ List<T>::List(T val, const List& tail)
 
 template<class T>
 const T&
-List<T>::head() {
+List<T>::head() const {
 
   if (isEmpty()) {
+    std::cout << "trying to head an empty list" << std::endl;
     throw;
   }
-  return data_.val_;
+  return data_->val_;
 }
 
 template<class T>
 List<T>
-List<T>::tail() {
+List<T>::tail() const {
 
   if (isEmpty()) {
+    std::cout << "trying to tail an empty list" << std::endl;
     throw;
   }
 
   return List(data_->rest_);
 }
 
-}
+} // end of Persistent namespace
 
-/* Questions:
-
-   Can we make a small optimization by having a private static empty list? Or is this impossible due to instatiation
-
- */
+#endif
