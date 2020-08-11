@@ -1,0 +1,67 @@
+how to deal with exceptions? how to make this type safe
+
+learn no except stuff
+learn explicit, extern
+
+/* Questions:
+
+   Can we make a small optimization by having a private static empty list? Or is this impossible due to instatiation
+
+ */
+
+/* could this work for having a sentinel empty list?
+template<class T>  // not thread safe?
+List<T>::List() {
+  static List<T>* EmptyList;
+
+  if (!EmptyList)
+    EmptyList = new List<T>(nullptr);
+
+  *this = *EmptyList;
+
+}
+*/
+
+/*
+template <typename T> requires Num<T>
+T NumTest(T a, T b) {
+  return a + b;
+}
+
+template <template <class> class C, class T> requires Num<T>
+T HigherKindedNumTest(C<T> a, C<T> b) {
+  return a[0] + b[0];
+}
+
+void runNumTest() {
+  auto a = std::vector<int>(5, 3);
+  auto b = std::vector<int>(5, 8);
+  std::cout << NumTest<int>(1, 4) << std::endl;
+  std::cout << HigherKindedNumTest<std::vector, int>(a, b) << std::endl;
+}
+*/
+
+
+ random code i wrote to debug
+  
+  auto tl = updated.treeList_;
+  while(!tl.isEmpty()) {
+    const auto& [weight, tree] = tl.head();
+    std::cout << "weight of tree: " << weight << std::endl;
+    auto f = [&](const T& val) {
+      std::cout << " " << val;
+    };
+    InOrderTraversal<T>(tree, f);
+    tl = tl.tail();
+  }
+
+template <class T>
+void InOrderTraversal(const CompleteBinaryTree<T>& tree, std::function<void(const T&)> f) {
+  if (tree.isEmpty())
+    return;
+  f(tree.root());
+  InOrderTraversal(tree.left(), f);
+  InOrderTraversal(tree.right(), f);
+  return;
+}
+
