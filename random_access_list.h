@@ -30,5 +30,4 @@ concept Num = requires(T a, T b) {
 */
 
 
-
 #endif
