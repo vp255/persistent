@@ -28,7 +28,7 @@ SkewBinaryRandomAccessList(const TreeList&);
 static
 Persistent::CompleteBinaryTree<T> updateTree(unsigned weight, unsigned idx, const T& val, const Persistent::CompleteBinaryTree<T>& tree);
 static
-SkewBinaryRandomAccessList<T> update(unsigned idx, const T& val, const typename SkewBinaryRandomAccessList<T>::TreeList& treeList);
+TreeList update(unsigned idx, const T& val, const typename SkewBinaryRandomAccessList<T>::TreeList& treeList);
 
 
 
@@ -142,23 +142,23 @@ Persistent::CompleteBinaryTree<T>
 SkewBinaryRandomAccessList<T>::updateTree(unsigned weight, unsigned idx, const T& val, const Persistent::CompleteBinaryTree<T>& tree) {
   if (idx == 0)
     return *Persistent::CompleteBinaryTree<T>::CreateCompleteBinaryTree(val, tree.left(), tree.right());
-  return idx > weight / 2 ? *Persistent::CompleteBinaryTree<T>::CreateCompleteBinaryTree(tree.root(), tree.left(), updateTree(weight / 2, weight - 1 - idx, val, tree.right()))
+  return idx > weight / 2 ? *Persistent::CompleteBinaryTree<T>::CreateCompleteBinaryTree(tree.root(), tree.left(), updateTree(weight / 2, idx - 1 - weight / 2, val, tree.right()))
                           : *Persistent::CompleteBinaryTree<T>::CreateCompleteBinaryTree(tree.root(), updateTree(weight / 2, idx - 1, val, tree.left()), tree.right());
 }
 
 template <class T>
-SkewBinaryRandomAccessList<T>
+SkewBinaryRandomAccessList<T>::TreeList
 SkewBinaryRandomAccessList<T>::update(unsigned idx, const T& val, const typename SkewBinaryRandomAccessList<T>::TreeList& treeList)
 {
   const auto& [weight, tree] = treeList.head();
-  return idx < weight ? SkewBinaryRandomAccessList<T>(TreeList(WeightAndTree(weight, updateTree(weight, idx, val, tree)), treeList.tail()))
-                      : update(idx - weight, val, treeList.tail());
+  return idx < weight ? TreeList(WeightAndTree(weight, updateTree(weight, idx, val, tree)), treeList.tail())
+                      : TreeList(WeightAndTree(weight, tree), update(idx - weight, val, treeList.tail()));
 }
 
 template <class T>
 SkewBinaryRandomAccessList<T>
 SkewBinaryRandomAccessList<T>::Update(unsigned idx, const T& val, const SkewBinaryRandomAccessList<T>& sbral) {
-  return update(idx, val, sbral.treeList_);
+  return SkewBinaryRandomAccessList(update(idx, val, sbral.treeList_));
 }
 
 } // end of Persistent namespace
